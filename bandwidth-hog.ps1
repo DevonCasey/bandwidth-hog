@@ -1,5 +1,6 @@
-$csvOutput = "$env:computername.csv" # output path for the csv
-{} | Select-Object "Hostname", "NIC", "Bandwidth", "Time" | Export-Csv $csvOutput # creates a blank csv header to append the data to
+Write-Output "Starting bandwidth monitoring..."
+$csvOutput = ".\data\$env:computername.csv" # output path for the csv
+{} | Select-Object "Hostname", "NIC", "Bandwidth", "Time", "Date" | Export-Csv $csvOutput # creates a blank csv header to append the data to
 $counter = 0 # counter for iteration
 $csvLoad = Import-Csv $csvOutput # loads the csv into the script
 do {
@@ -9,6 +10,11 @@ do {
     $csvLoad.NIC = $bandwidthQuery.Name # puts the name of the object into the name column of the csv
     $csvLoad.Bandwidth = [math]::Round(($bandwidthQuery.BytesTotalPerSec / 1Mb), 1) # same thing as above, but with some math to convert bytes to megabytes
     $csvLoad.Time = $counter # puts the counter into its own column... not an exact measure of time
+    $csvLoad.Date = Get-Date -Format G
     $csvLoad | Export-Csv $csvOutput -Append # adds this pass into the last row in the csv
-    $counter++ # counter up by 1
-} while ($counter -le 500) # preform the above process again until we get n data points
+    $counter++ # counter up by 1   
+    Write-Output $bandwidthQuery
+    Write-Output "Running..."
+} while ($counter -le 365600) # preform the above process again until we get n data points
+Write-Output "Done! You may eject the USB now."
+# this will take a while... 
