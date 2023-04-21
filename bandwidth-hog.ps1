@@ -1,5 +1,18 @@
+$vmDetected = $false
+try {
+    $vmHostName = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Virtual Machine\Guest\Parameters"  | Select-Object HostName).HostName + "-" # Some god awful mistake of computer architecture to get a name for the file based on the host and the VM 
+    $hostname = $env:computername
+    $fileName = $vmHostName + $hostname
+} catch { 
+    $vmDetected = $true
+}
+if(!$vmDetected) {
+    $csvOutput = ".\data\$fileName.csv" # If the machine is running in a VM, give me a file name with both info
+} else { 
+    $csvOutput = ".\data\$hostName.csv" # If the machine is running in a VM, give me a file name with both info
+}
+
 Write-Output "Starting bandwidth monitoring..."
-$csvOutput = ".\data\$env:computername.csv" # Output path for the csv
 {} | Select-Object "Hostname", #
                    "NIC1", "BandwidthNIC1", 
                    "NIC2", "BandwidthNIC2",
@@ -55,6 +68,6 @@ do {
     $counter++ # Counter up by 1   
     Write-Output $bandwidthQuery
     Write-Output "Running..."
-} while ($counter -le 345000) # Preform the above process again until we get n data points. This is roughly a day. 
+} while ($counter -le 2000) # Preform the above process again until we get n data points. This is roughly a day. 
 Write-Output "Done! You may eject the USB now."
 # This will take a while... 
