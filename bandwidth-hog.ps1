@@ -1,15 +1,9 @@
-$vmDetected = $false
-try {
-    $vmHostName = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Virtual Machine\Guest\Parameters"  | Select-Object HostName).HostName + "-" # Some god awful mistake of computer architecture to get a name for the file based on the host and the VM 
-    $hostname = $env:computername
-    $fileName = $vmHostName + $hostname
-} catch { 
-    $vmDetected = $true
-}
-if(!$vmDetected) {
-    $csvOutput = ".\data\$fileName.csv" # If the machine is running in a VM, give me a file name with both info
+$vmHostName = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Virtual Machine\Guest\Parameters"  | Select-Object HostName).HostName 
+if($null -eq $vmHostName) { # I cant tell if this is genius or the worst thing ever written in powershell.
+    $csvOutput = ".\data\$env:computername.csv" # If the machine is NOT running in a VM. 
 } else { 
-    $csvOutput = ".\data\$hostName.csv" # If the machine is running in a VM, give me a file name with both info
+    $fileName = $vmHostName + "-" + $env:computername
+    $csvOutput = ".\data\$fileName.csv" # If the machine is running in a VM, give me a file name with both info
 }
 
 Write-Output "Starting bandwidth monitoring..."
